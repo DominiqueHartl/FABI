@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <avr/pgmspace.h>
 #include "commands.h"
+#include "puffmode.h"
 
 
 #define VERSION_STRING "FABI v2.3"
@@ -38,9 +39,17 @@
   #define EEPROM_SIZE        4096     // maximum size of EEPROM storage for Teensy2.0++
 #endif
 
-#define NUMBER_OF_BUTTONS  11         // number of connected or virtual switches
+#define NUMBER_OF_BUTTONS  13         // number of connected + virtual switches and Kissenschalter
 #define NUMBER_OF_PHYSICAL_BUTTONS 9  // number of connected switches
 #define NUMBER_OF_LEDS     3          // number of connected leds
+
+// define index numbers of the virtual buttons from Kissenschalter (not pin numbers in this case !)
+// (buttons 2-10 are the physical switches on the device)
+
+//#define STRONGPUFF_BUTTON1        13
+//#define SIP_BUTTON2               14
+//#define PUFF_BUTTON2              15
+//#define STRONGPUFF_BUTTON2        16
 
 
 #define MOUSE_ACCELDELAY   50         // steps to reach mouse move speed
@@ -58,12 +67,25 @@
 #define REPORT_ONE_SLOT  1
 #define REPORT_ALL_SLOTS 2
 
+
+
+//#define TONE_ENTER_STRONGSIP  1
+//#define TONE_EXIT_STRONGSIP   2
+//#define TONE_ENTER_STRONGPUFF 1
+//#define TONE_EXIT_STRONGPUFF  2
+//#define TONE_INDICATE_SIP     3
+//#define TONE_INDICATE_PUFF    4
+
 #define DEFAULT_WAIT_TIME            5   // wait time for one loop interation in milliseconds
 #define DEFAULT_CLICK_TIME           8   // time for mouse click (loop iterations from press to release)
 #define DOUBLECLICK_MULTIPLIER       5   // CLICK_TIME factor for double clicks
 #define DEFAULT_WHEEL_STEPSIZE       3   // stepsize for scroll wheel
 #define DEFAULT_SIP_THRESHOLD        0   // sip action disabled per default
 #define DEFAULT_PUFF_THRESHOLD    1023   // puff action disabled per default
+
+#define DEFAULT_SIP_THRESHOLD_2       0   // sip action disabled per default
+#define DEFAULT_PUFF_THRESHOLD_2   1023   // puff action disabled per default
+
 #define DEFAULT_ANTITREMOR_PRESS     5   // debouncing interval for button-press
 #define DEFAULT_ANTITREMOR_RELEASE   2   // debouncing interval for button-release
 #define DEFAULT_ANTITREMOR_IDLE      1   // debouncing interval for button idle time
@@ -80,7 +102,13 @@ struct settingsType {
   uint8_t  ws;     // wheel stepsize  
   uint16_t tt;     // threshold time for longpress 
   uint16_t ts;     // threshold sip
-  uint16_t tp;     // threshold puff 
+  uint16_t tp;     // threshold puff
+  uint16_t ts1;     //threshold sipp1
+  uint16_t tp1;     //threshold puff1
+  uint16_t sp1;    //threshold strongpuff 1
+  uint16_t ts2;    //threshold sip2
+  uint16_t tp2;     //threshold puff2
+  uint16_t sp2;     // threshold strongpuff2
   uint16_t ap;     // antitremor press time 
   uint16_t ar;     // antitremor release time 
   uint16_t ai;     // antitremor idle time 
@@ -117,6 +145,8 @@ extern char keystringBuffer[KEYSTRING_BUFFER_LEN]; // buffer for all string para
 extern uint16_t freeEEPROMbytes;
 extern const int usToDE[];
 
+extern int8_t  input_map[NUMBER_OF_PHYSICAL_BUTTONS];
+
 extern uint8_t leftMouseButton;
 extern uint8_t middleMouseButton;
 extern uint8_t rightMouseButton;
@@ -139,7 +169,12 @@ void readFromEEPROM(char * slotname);
 void deleteSlots();
 void listSlots();
 void printCurrentSlot();
+//void makeTone(uint8_t kind, uint8_t param);
 
+void handlePress (int buttonIndex);      // a button was pressed
+void handleRelease (int buttonIndex);    // a button was released
+void initDebouncers();
+void handleButton(int i, int l, uint8_t b);  // button debouncing
 
 void BlinkLed();
 int freeRam ();

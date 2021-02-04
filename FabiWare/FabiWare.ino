@@ -19,9 +19,17 @@
 
 uint8_t DebugOutput=0;  // Use 1 for chatty serial output (but it won't be compatible with GUI)
 
-#define SIP_BUTTON    9
-#define PUFF_BUTTON  10
+#define SIP_BUTTON                9
+#define PUFF_BUTTON               10
+#define SIP_BUTTON1               11
+#define PUFF_BUTTON1              12
 #define PRESSURE_SENSOR_PIN A0
+
+#define PRESSURE_SENSOR_PIN_1 A1
+#define PRESSURE_SENSOR_PIN_2 A2
+
+//Piezo Pin (for tone generation)
+//#define TONE_PIN  9
 
 
 #ifdef TEENSY
@@ -37,11 +45,12 @@ uint8_t DebugOutput=0;  // Use 1 for chatty serial output (but it won't be compa
 #endif
 
 struct settingsType settings = {      // type definition see fabi.h
-    "slot1", DEFAULT_WHEEL_STEPSIZE, DEFAULT_TRESHOLD_TIME, 
+    "slot1", DEFAULT_WHEEL_STEPSIZE, DEFAULT_TRESHOLD_TIME,  
     DEFAULT_SIP_THRESHOLD, DEFAULT_PUFF_THRESHOLD,
+    DEFAULT_SIP_THRESHOLD_2,DEFAULT_PUFF_THRESHOLD_2,  
     DEFAULT_ANTITREMOR_PRESS, DEFAULT_ANTITREMOR_RELEASE, DEFAULT_ANTITREMOR_IDLE
 }; 
-
+//DEFAULT_SIP_THRESHOLD_2, DEFAULT_PUFF_THRESHOLD_2,
 
 struct buttonType buttons [NUMBER_OF_BUTTONS];                     // array for all buttons - type definition see fabi.h 
 struct buttonDebouncerType buttonDebouncers [NUMBER_OF_BUTTONS];   // array for all buttonsDebouncers - type definition see fabi.h 
@@ -70,7 +79,9 @@ uint8_t doubleClickRunning=0;
 
 int inByte=0;
 uint16_t pressure=0;
+uint16_t pressure1=0;
 uint8_t reportRawValues = 0;
+
 
 uint8_t cnt =0,cnt2=0;
 
@@ -81,6 +92,7 @@ void handleRelease (int buttonIndex);    // a button was released
 void handleButton(int i, int l, uint8_t b);  // button debouncing
 void UpdateLeds();
 void initDebouncers();
+void UpdateTones();
 
 ////////////////////////////////////////
 // Setup: program execution starts here
@@ -145,6 +157,10 @@ void setup() {
 void loop() {  
 
       pressure = analogRead(PRESSURE_SENSOR_PIN);
+// bleibt sicher
+     pressure1 = analogRead(PRESSURE_SENSOR_PIN_1); 
+     //pressure2 nicht nötig
+     //pressure2 = analogRead(PRESSURE_SENSOR_PIN_2); 
 
       while (Serial.available() > 0) {
         // get incoming byte:
@@ -157,6 +173,11 @@ void loop() {
 
       if (settings.ts>0)    handleButton(SIP_BUTTON, -1, pressure < settings.ts ? BUTTON_PRESSED : BUTTON_RELEASED); 
       if (settings.tp<1023) handleButton(PUFF_BUTTON, -1, pressure > settings.tp ? BUTTON_PRESSED : BUTTON_RELEASED);
+
+
+
+     if (settings.ts1>0)    handleButton(SIP_BUTTON1, -1, pressure1 < settings.ts1 ? BUTTON_PRESSED : BUTTON_RELEASED); 
+     if (settings.tp1<1023) handleButton(PUFF_BUTTON1, -1, pressure1 > settings.tp1 ? BUTTON_PRESSED : BUTTON_RELEASED);
 
         
       if (moveX==0) moveXcnt=0; 
@@ -205,13 +226,18 @@ void loop() {
     }
     
     if (reportRawValues)   { 
+      if (!reportRawValues)   return; 
        if (valueReportCount++ > 10) {      // report raw values !
-           Serial.print("VALUES:");Serial.print(pressure);Serial.println(",");  
-        valueReportCount=0; 
+           Serial.print("VALUES:");Serial.print(pressure);
+           Serial.println(",");Serial.print(pressure1); 
+           //Serial.println(",");Serial.print(pressure2);
+            valueReportCount=0; 
       }
-    }
-       
+     } 
+   
+    //handleModeState(pressure1, pressure2); //Handle Analoge Button activites  Kissenschalter 
     UpdateLeds();
+   // UpdateTones();
     
     //we need a workaround for different clock settings on Arduino Pro Micro boards.
     //millis is not working correctly, the delay seems to be 8x higher if wrong clock
@@ -387,6 +413,58 @@ void UpdateLeds()
    if (actSlot == 2) digitalWrite (led_map[1],LOW); else digitalWrite (led_map[1],HIGH); 
    if (actSlot == 3) digitalWrite (led_map[2],LOW); else digitalWrite (led_map[2],HIGH); 
 }
+
+
+//uint16_t toneHeight;
+//uint16_t toneOnTime;
+//uint16_t toneOffTime;
+//uint16_t toneCount=0;
+//
+//void UpdateTones()
+//{  
+//  static uint16_t toneState=0;
+//  static uint16_t cnt=0;
+//
+//  if (!toneCount) return;
+//
+//  uint8_t tonePin = TONE_PIN;
+//
+//  switch(toneState) {
+//      case 0:
+//            tone(tonePin, toneHeight, toneOnTime);
+//            toneState++;
+//            break;
+//      case 1:
+//            if (++cnt > (toneOnTime+toneOffTime)/5 )  {
+//              toneCount--;
+//              toneState=0;
+//              cnt=0;
+//            }
+//            break;
+//    }
+//  }
+
+
+//void makeTone(uint8_t kind, uint8_t param)
+//{
+//  uint8_t tonePin = TONE_PIN;
+//    
+//    switch (kind) {
+//    case TONE_ENTER_STRONGPUFF: 
+//      tone(tonePin, 400, 200);
+//            break;
+//    case TONE_EXIT_STRONGPUFF: 
+//      tone(tonePin, 400, 100);
+//            break;
+//    case TONE_INDICATE_SIP:
+//      tone(tonePin, 5000, 5);
+//      break;
+//    case TONE_INDICATE_PUFF:
+//      tone(tonePin, 4000, 5);
+//      break;
+//    
+//     }
+//}
 
 
 int freeRam ()

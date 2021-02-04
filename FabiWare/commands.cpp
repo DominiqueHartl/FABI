@@ -11,7 +11,8 @@ const struct atCommandType atCommands[] PROGMEM = {
     {"RA"  , PARTYPE_NONE },  {"SA"  , PARTYPE_STRING},{"LO"  , PARTYPE_STRING},{"LA"  , PARTYPE_NONE },
     {"LI"  , PARTYPE_NONE },  {"NE"  , PARTYPE_NONE }, {"DE"  , PARTYPE_NONE }, {"NC"  , PARTYPE_NONE }, 
     {"E1"  , PARTYPE_NONE },  {"E0"  , PARTYPE_NONE }, {"SR"  , PARTYPE_NONE }, {"ER"  , PARTYPE_NONE },
-    {"TS"  , PARTYPE_UINT },  {"TP"  , PARTYPE_UINT }, {"MA"  , PARTYPE_STRING},{"WA"  , PARTYPE_UINT  },
+    {"TS"  , PARTYPE_UINT },  {"TP"  , PARTYPE_UINT },{"TS1"  , PARTYPE_UINT }, {"TP1"  , PARTYPE_UINT },
+    {"MA"  , PARTYPE_STRING},{"WA"  , PARTYPE_UINT  },
     {"TT"  , PARTYPE_UINT },  {"AP"  , PARTYPE_UINT }, {"AR"  , PARTYPE_UINT},  {"AI"  , PARTYPE_UINT  },
     {"FR"  , PARTYPE_NONE }
 };
@@ -20,12 +21,15 @@ void printCurrentSlot()
 {
         Serial.print(F("Slot:"));  Serial.println(settings.slotname);
         Serial.print(F("AT WS ")); Serial.println(settings.ws);
-        Serial.print(F("AT TS ")); Serial.println(settings.ts);
-        Serial.print(F("AT TP ")); Serial.println(settings.tp);
+        Serial.print(F("AT TS ")); Serial.println(settings.ts);  
+        Serial.print(F("AT TP ")); Serial.println(settings.tp); 
         Serial.print(F("AT TT ")); Serial.println(settings.tt);
         Serial.print(F("AT AP ")); Serial.println(settings.ap);
         Serial.print(F("AT AR ")); Serial.println(settings.ar);
         Serial.print(F("AT AI ")); Serial.println(settings.ai);
+        Serial.print(F("AT TS1 ")); Serial.println(settings.ts1);
+        Serial.print(F("AT TP1 ")); Serial.println(settings.tp1);
+        //Serial.println(settings.ts1); Serial.println(settings.tp1); 
         for (int i=0;i<NUMBER_OF_BUTTONS;i++) 
         {
            Serial.print(F("AT BM ")); 
@@ -286,6 +290,16 @@ void performCommand (uint8_t cmd, int16_t parNum, char * parString, int8_t perio
                if (DebugOutput==1)  
                  Serial.println(F("set threshold puff"));
                settings.tp=parNum;
+            break;
+        case CMD_TS1:
+               if (DebugOutput==1)  
+                 Serial.println(F("set threshold sip1"));
+               settings.ts1=parNum;
+            break;
+        case CMD_TP1:
+               if (DebugOutput==1)  
+                 Serial.println(F("set threshold puff1"));
+                 settings.tp1=parNum;
             break;
         case CMD_TT:
                if (DebugOutput==1)  
