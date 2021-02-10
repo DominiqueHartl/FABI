@@ -23,8 +23,6 @@
 #include <stdint.h>
 #include <avr/pgmspace.h>
 #include "commands.h"
-#include "puffmode.h"
-
 
 #define VERSION_STRING "FABI v2.3"
 
@@ -39,7 +37,7 @@
   #define EEPROM_SIZE        4096     // maximum size of EEPROM storage for Teensy2.0++
 #endif
 
-#define NUMBER_OF_BUTTONS  13         // number of connected + virtual switches and Kissenschalter
+#define NUMBER_OF_BUTTONS  12         // number of connected + virtual switches and Kissenschalter
 #define NUMBER_OF_PHYSICAL_BUTTONS 9  // number of connected switches
 #define NUMBER_OF_LEDS     3          // number of connected leds
 
