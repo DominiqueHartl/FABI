@@ -158,7 +158,8 @@ void loop() {
 
       pressure = analogRead(PRESSURE_SENSOR_PIN);
 // bleibt sicher
-     pressure1 = analogRead(PRESSURE_SENSOR_PIN_1); 
+     pressure1 = analogRead(PRESSURE_SENSOR_PIN_1);
+     /*Serial.println(pressure);*/
      //pressure2 nicht nötig
      //pressure2 = analogRead(PRESSURE_SENSOR_PIN_2); 
 
