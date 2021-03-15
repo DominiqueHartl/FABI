@@ -230,7 +230,7 @@ void loop() {
       if (!reportRawValues)   return; 
        if (valueReportCount++ > 10) {      // report raw values !
            Serial.print("VALUES:");Serial.print(pressure);
-           Serial.println(",");Serial.print(pressure1); 
+           Serial.print(",");Serial.println(pressure1); 
            //Serial.println(",");Serial.print(pressure2);
             valueReportCount=0; 
       }
